@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+
+generated/
+
+models/Qwen2.5-Coder-1.5B-Instruct/
+models/Qwen2.5-Coder-3B-Instruct/
+
+node_modules/
+out/
+.vscode-test/
+*.vsix
+
+
+.DS_Store
+Thumbs.db
