@@ -68,7 +68,7 @@ git clone https://github.com/csumitwr/multi-agent-ai-suite.git
 ### Install dependencies
 
 ```bash
-pip install -r multi-agent-ai-suite/requirements.txt
+pip install -r multi-agent-ai/requirements.txt
 ```
 
 ### Download the models
