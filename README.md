@@ -6,7 +6,7 @@ Local multi-agent AI Python code generator with Web UI, CLI and Visual Studio Co
 
 ---
 
-## 📌 Overview
+## Overview
 
 Multi-Agent AI Suite is a local AI coding assistant that generates and reviews Python code using a multi-agent architecture.
 
