@@ -2,8 +2,6 @@
 
 Local multi-agent AI Python code generator with Web UI, CLI and Visual Studio Code extension.
 
-![Streamlit Demo](assets/web_ui_Video.gif)
-
 ---
 
 ## Overview
