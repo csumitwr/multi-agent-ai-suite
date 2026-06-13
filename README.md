@@ -2,6 +2,7 @@
 
 > Local multi-agent AI Python code generator with Web UI, CLI, and VS Code extension.
 
+![Web Application](assets/web_ui_Video.gif)
 
 
 ## Overview
