@@ -1,167 +1,85 @@
 # Multi-Agent AI Suite
 
-> Local multi-agent AI Python code generator with Web UI, CLI, and VS Code extension.
+Local multi-agent AI Python code generator with a Web UI, CLI, and VS Code extension powered by open-source Qwen models.
 
-![Web Application](assets/web_ui_Video.gif)
+![Web UI](assets/streamlit-demo.gif)
 
+The Streamlit application provides a browser-based interface for generating Python code. User prompts are sent to a FastAPI backend which coordinates the code generation and review agents before returning the final output.
 
-## Overview
-
-Multi-Agent AI Suite is a local AI coding assistant designed to generate and review Python code using a multi-agent workflow.
-
-The project combines multiple interfaces around a shared FastAPI backend:
-
-* Streamlit Web Application
-* Command Line Interface
-* VS Code Extension
-
-The entire pipeline runs locally using open-source Qwen models.
-
-
+---
 
 ## Features
 
 * Multi-agent architecture
 * Local LLM inference
-* Streamlit Web UI
-* Command Line Interface
+* Streamlit web application
+* Command line interface
 * VS Code extension
 * FastAPI backend
-* Code review pipeline
 * Sandboxed code execution
 * Import validation
 * Offline operation
 
+---
 
+## Website
 
-## Web Application
+This is where you can generate Python code through a browser interface.
 
-Generate Python code through a browser interface.
-
-![Web Application](assets/web_ui_Video.gif)
+![Web UI](assets/streamlit-demo.gif)
 
 ---
 
 ## VS Code Extension
 
-Generate Python code directly inside Visual Studio Code.
+![VS Code Extension](assets/vscode-demo.gif)
 
-![VS Code Extension](assets/vscode_ui.gif)
+The VS Code extension communicates directly with the local FastAPI backend and inserts generated code into the active editor. This allows code generation without leaving Visual Studio Code.
 
 ---
 
 ## Command Line Interface
 
-![CLI](assets/cli_ui.png)
+![CLI](assets/cli-demo.png)
 
-Generate Python code from the terminal.
+The CLI offers a lightweight terminal experience for interacting with the code generation pipeline. Prompts are sent to the backend and generated code is displayed directly in the console.
 
+---
 
-
-## Installation
-
-### Clone the repository
-
-```bash
-git clone https://github.com/csumitwr/multi-agent-ai-suite.git
-```
-
-### Install dependencies
-
-```bash
-pip install -r multi-agent-ai/requirements.txt
-```
-
-### Download the models
-
-```bash
-python -m models.download_model
-```
-
-### Run the application
-
-```bash
-python main.py
-```
-
-Choose:
+## Architecture
 
 ```text
-1. Launch Web Application
-2. Launch CLI
+User
+ │
+ ├── Streamlit UI
+ ├── CLI
+ └── VS Code Extension
+         │
+         ▼
+    FastAPI Backend
+         │
+         ▼
+     Orchestrator
+         │
+ ┌───────┴───────┐
+ │               │
+ ▼               ▼
+Code Agent   Review Agent
+         │
+         ▼
+      Sandbox
+         │
+         ▼
+ Generated Python Code
 ```
 
-### OR
+---
 
-```bash
-uvicorn backend.app:app --reload
-```
-
-```bash
-streamlit run frontend/app.py
-```
-
-```text
-Run the backedn first and then the streamlit UI
-```
-
-
-
-### Visual Studio Code Extension Setup
-
-Open the extension project:
-
-```bash
-cd multi-agent-ai-vscode
-```
-
-Install the dependencies:
-
-```bash
-npm install
-```
-
-Launch the Extension Development Host:
-
-```text
-Press F5
-```
-
-A new VS Code window will open.
-
-### Usage
-
-1. Start the AI backend
-
-
-```bash
-uvicorn backend.app:app --reload
-```
-
-2. In the Extension Development Host
-
-* Open a Python file
-* Press `Ctrl + Shift + P`
-* Run `Generate Python Code`
-* Enter your prompt
-
-Example:
-
-```text
-Generate bubble sort for five integers
-```
-
-The generated code will be inserted into the active editor.
-
-
-
-
-## Project Structure
+## Repository Structure
 
 ```text
 multi-agent-ai-suite
 │
-├── README.md
 ├── assets
 │
 ├── multi-agent-ai
@@ -175,11 +93,10 @@ multi-agent-ai-suite
 │
 └── multi-agent-ai-vscode
     ├── src
-    ├── package.json
-    └── tsconfig.json
+    └── package.json
 ```
 
-
+---
 
 ## Technology Stack
 
@@ -204,41 +121,153 @@ multi-agent-ai-suite
 * Qwen2.5-Coder-1.5B-Instruct
 * Qwen2.5-Coder-3B-Instruct
 
+---
 
+## Requirements
 
-## Multi-Agent Workflow
+* Python 3.11+
+* Git
 
-```text
-User Prompt
-      │
-      ▼
-FastAPI Backend
-      │
-      ▼
-Code Agent
-      │
-      ▼
-Review Agent
-      │
-      ▼
-Sandbox Execution
-      │
-      ▼
-Generated Python Code
+Optional:
+
+* NVIDIA GPU
+* Node.js and npm (required for the VS Code extension)
+
+---
+
+## Installation
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/csumitwr/multi-agent-ai-suite.git
 ```
 
+### Navigate to the Python Project
 
+```bash
+cd multi-agent-ai-suite/multi-agent-ai
+```
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Install PyTorch
+
+PyTorch is intentionally not included in `requirements.txt` because installation differs between CPU and GPU systems.
+
+### CPU
+
+```bash
+pip install torch
+```
+
+### NVIDIA GPU
+
+Install the CUDA-enabled version that matches your system using the official PyTorch installation guide:
+
+https://pytorch.org/get-started/locally/
+
+Example:
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+```
+
+---
+
+## Download Models
+
+```bash
+python models/download_model.py
+```
+
+---
+
+## Running the Project
+
+### Launch Menu
+
+```bash
+python main.py
+```
+
+Choose:
+
+```text
+1. Launch Web Application
+2. Launch CLI
+```
+
+---
+
+### Manual Startup
+
+Backend:
+
+```bash
+uvicorn backend.app:app --reload
+```
+
+Frontend:
+
+```bash
+streamlit run frontend/app.py
+```
+
+---
+
+## VS Code Extension Setup
+
+Please make sure the backend is running in the background (How to do that is mentioned above).
+
+Open the folder in visual studio code (This is needed). Activate a virtual environment. Inside Terminal run the following command
+
+```bash
+cd multi-agent-ai-vscode
+
+npm install
+```
+
+Press:
+
+```text
+F5
+```
+
+A new Extension Development Host window will open.
+
+Open a Python file and run:
+
+```text
+Ctrl + Shift + P
+```
+
+Then select:
+
+```text
+Hello World
+```
+
+After that a text box will appear where you can enter the prompt. It will generate and paste the code directly inside the active file.
+
+---
 
 ## Future Improvements
 
 * Additional specialized agents
-* Better hallucination reduction
 * More programming languages
+* Improved review workflows
 * Packaged VS Code extension
-* Improved prompt engineering
+* Enhanced prompt engineering
 
-
+---
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
