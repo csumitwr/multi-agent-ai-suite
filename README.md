@@ -26,13 +26,13 @@ The Streamlit application provides a browser-based interface for generating Pyth
 
 This is where you can generate Python code through a browser interface.
 
-![Web UI](assets/streamlit-demo.gif)
+![Web UI](assets/web_ui_video.gif)
 
 ---
 
 ## VS Code Extension
 
-![VS Code Extension](assets/vscode-demo.gif)
+![VS Code Extension](assets/vscode_ui.gif)
 
 The VS Code extension communicates directly with the local FastAPI backend and inserts generated code into the active editor. This allows code generation without leaving Visual Studio Code.
 
@@ -40,7 +40,7 @@ The VS Code extension communicates directly with the local FastAPI backend and i
 
 ## Command Line Interface
 
-![CLI](assets/cli-demo.png)
+![CLI](assets/cli_ui.png)
 
 The CLI offers a lightweight terminal experience for interacting with the code generation pipeline. Prompts are sent to the backend and generated code is displayed directly in the console.
 
