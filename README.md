@@ -2,7 +2,7 @@
 
 Local multi-agent AI Python code generator with a Web UI, CLI, and VS Code extension powered by open-source Qwen models.
 
-![Web UI](assets/streamlit-demo.gif)
+![Web UI](assets/web_ui_Video.gif)
 
 The Streamlit application provides a browser-based interface for generating Python code. User prompts are sent to a FastAPI backend which coordinates the code generation and review agents before returning the final output.
 
