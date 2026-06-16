@@ -24,9 +24,9 @@ The Streamlit application provides a browser-based interface for generating Pyth
 
 ## Website
 
-This is where you can generate Python code through a browser interface.
-
 ![Web UI](assets/web_ui_Video.gif)
+
+This is where you can generate Python code through a browser interface.
 
 ---
 
