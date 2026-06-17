@@ -2,6 +2,9 @@ venv/
 __pycache__/
 *.pyc
 
+logs/
+*.log
+
 generated/
 
 models/Qwen2.5-Coder-1.5B-Instruct/
