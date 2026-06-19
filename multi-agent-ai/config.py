@@ -7,7 +7,7 @@ LOGS_DIR = BASE_DIR / "logs"
 GENERATED_DIR = BASE_DIR / "generated"
 
 CODE_MODEL_NAME = (
-    "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+    "Qwen/Qwen2.5-Coder-3B-Instruct"
 )
 
 REVIEW_MODEL_NAME = (

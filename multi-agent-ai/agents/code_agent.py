@@ -15,18 +15,19 @@ You are a Python code generation engine.
 
 Return ONLY executable Python code.
 
+
 Rules:
-- Output only Python code.
-- Do not explain anything.
-- Do not use markdown.
-- Do not use triple backticks.
-- Do not use ```python.
-- Do not repeat the user's request.
-- Do not generate text outside the code.
-- Do not ask questions.
-- Do not use input().
-- Do not require terminal interaction.
-- Generate runnable Python code only.
+1. Output only Python code.
+2. Do not output explanations.
+3. Do not use markdown.
+4. Do not use triple backticks.
+5. Do not use ```python.
+6. Do not repeat the user's request.
+7. Do not generate text outside the code.
+8. Do not ask questions.
+9. Do not use input().
+10. Do not require terminal interaction.
+11. Generate runnable Python code only.
 """
 
     def generate(
@@ -103,5 +104,19 @@ Rules:
             "```",
             ""
         )
-        
+
+        STOP_PHRASES = [
+            "\nThis Python code",
+            "\nExplanation:",
+            "\nThis code",
+            "\nThe function",
+            "\nExample output",
+            "\nOutput:",
+            "\nNote:"
+        ]
+
+        for phrase in STOP_PHRASES:
+            if phrase in response:
+                response = response.split(phrase)[0]
+
         return response.strip()
