@@ -3,22 +3,32 @@ import ast
 class CodeSanitizer:
     STOP_PREFIXES = (
         "This code",
+        "This Python",
+        "This program",
+        "This script",
         "The above",
         "The following",
         "Explanation",
         "Output:",
+        "Expected Output",
         "Example Output",
-        "In this code",
-        "This function",
-        "This program",
-        "This script"
+        "Sample Output",
+        "Sample Input",
+        "Input:",
+        "Expected:",
+        "Note:",
+        "Here's",
+        "When you run",
+        "The algorithm",
+        "The function",
+        "This solution",
+        "Test Case",
+        "Test Cases"
     )
 
     @classmethod
-    def sanitize(
-        cls,
-        text: str
-    ) -> str:
+    def sanitize(cls, text: str) -> str:
+
         if not text:
             return ""
 
@@ -33,45 +43,56 @@ class CodeSanitizer:
         )
 
         text = text.strip()
-        try:
-            ast.parse(text)
-            return text
-
-        except SyntaxError:
-            pass
 
         lines = text.splitlines()
         cleaned_lines = []
 
         for line in lines:
+
             stripped = line.strip()
-            should_stop = False
+
+            stop = False
 
             for prefix in cls.STOP_PREFIXES:
-                if stripped.startswith(
-                    prefix
-                ):
-                    should_stop = True
+
+                if stripped.startswith(prefix):
+                    stop = True
                     break
 
-            if should_stop:
+            if stop:
                 break
 
-            cleaned_lines.append(
-                line
-            )
+            cleaned_lines.append(line)
 
-        cleaned_code = "\n".join(
-            cleaned_lines
-        ).strip()
+        cleaned_code = (
+            "\n".join(cleaned_lines)
+            .rstrip()
+        )
 
         try:
-            ast.parse(
-                cleaned_code
-            )
+            ast.parse(cleaned_code)
             return cleaned_code
-        
-        except SyntaxError:
-            return text.strip()
 
-        return cleaned_code
+        except Exception:
+
+            # Last resort:
+            # Keep removing lines from bottom
+            # until valid Python remains
+
+            lines = cleaned_lines[:]
+
+            while lines:
+
+                try:
+
+                    candidate = "\n".join(lines)
+
+                    ast.parse(candidate)
+
+                    return candidate.strip()
+
+                except Exception:
+
+                    lines.pop()
+
+            return ""

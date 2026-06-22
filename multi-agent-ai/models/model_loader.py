@@ -1,4 +1,5 @@
 from pathlib import Path
+import gc
 import torch
 
 from transformers import (
@@ -10,7 +11,9 @@ from config import (
     MODELS_DIR
 )
 
+
 class ModelLoader:
+
     _tokenizer = None
     _model = None
     _current_model_name = None
@@ -18,34 +21,48 @@ class ModelLoader:
     if torch.cuda.is_available():
         _device = "cuda"
         _runtime = "GPU (CUDA)"
-
     else:
         _device = "cpu"
         _runtime = "CPU"
 
-    
     @classmethod
     def load_model(
         cls,
         model_name: str
     ):
-        
-        if (
-        cls._tokenizer is not None
-        and cls._model is not None
-        and cls._current_model_name == model_name
-        ):
-            
-            cls._current_model_name = model_name
 
+        # Reuse already loaded model
+        if (
+            cls._tokenizer is not None
+            and cls._model is not None
+            and cls._current_model_name == model_name
+        ):
             return (
                 cls._tokenizer,
                 cls._model
             )
 
+        # Different model requested
+        # Unload previous model first
+        if (
+            cls._current_model_name is not None
+            and cls._current_model_name != model_name
+        ):
+            print(
+                f"[ModelLoader] Switching model: "
+                f"{cls._current_model_name} -> {model_name}"
+            )
+
+            cls.unload_model()
+
         model_path = (
             MODELS_DIR /
             model_name.split("/")[-1]
+        )
+
+        print(
+            f"[ModelLoader] Loading: "
+            f"{model_path}"
         )
 
         cls._tokenizer = (
@@ -77,6 +94,8 @@ class ModelLoader:
 
         cls._model.eval()
 
+        cls._current_model_name = model_name
+
         return (
             cls._tokenizer,
             cls._model
@@ -92,7 +111,7 @@ class ModelLoader:
     @classmethod
     def get_device(cls):
         return cls._device
-    
+
     @classmethod
     def get_runtime(cls):
         return cls._runtime
@@ -111,6 +130,12 @@ class ModelLoader:
 
     @classmethod
     def unload_model(cls):
+
+        print(
+            f"[ModelLoader] Unloading: "
+            f"{cls._current_model_name}"
+        )
+
         if cls._model is not None:
             del cls._model
 
@@ -121,5 +146,12 @@ class ModelLoader:
         cls._tokenizer = None
         cls._current_model_name = None
 
+        gc.collect()
+
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+            try:
+                torch.cuda.ipc_collect()
+            except Exception:
+                pass

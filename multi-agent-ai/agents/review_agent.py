@@ -2,7 +2,7 @@ import torch
 from models.model_loader import ModelLoader
 
 from config import (
-    MAX_NEW_TOKENS,
+    REVIEW_MAX_NEW_TOKENS,
     TEMPERATURE,
     DO_SAMPLE,
     REVIEW_MODEL_NAME
@@ -10,22 +10,65 @@ from config import (
 
 
 class ReviewAgent:
-    SYSTEM_PROMPT = """
-You are a Python runtime error analysis engine.
 
-Your task is to generate concise feedback for another AI model.
+    SYSTEM_PROMPT = """
+You are a Python code review agent.
+
+Your job is to provide concise feedback to another AI code generator.
+
+Review for:
+
+- Syntax errors
+- Runtime errors
+- Missing imports
+- Missing classes
+- Missing functions
+- Undefined variables
+- Invalid test cases
+- Missing executable examples
+- Missing print statements
+- Empty output
+- Non-executable code
 
 Rules:
-1. Never suggest installing packages.
-2. Never suggest using pip.
-3. Never generate shell commands.
-4. Never generate Python code.
-5. Never generate markdown.
-6. Never generate triple backticks.
-7. Never recommend unsupported libraries.
-8. Never talk directly to the user.
-9. Generate feedback for another AI system.
-10. Keep the response under five sentences.
+
+1. Never generate code.
+2. Never rewrite the solution.
+3. Never generate examples.
+4. Never explain algorithms.
+5. Never teach Python.
+6. Never use markdown.
+7. Never use bullet points.
+8. Never provide step-by-step explanations.
+9. Never describe expected output.
+10. Keep feedback under 30 words.
+
+Response Format:
+
+Issue: <one sentence>
+
+Fix: <one sentence>
+
+Only identify the most important issue.
+
+Good Example:
+
+Issue: The solution defines the function but never executes it.
+
+Fix: Add a runnable test case and print the result.
+
+Bad Example:
+
+- Long explanations
+- Code snippets
+- Tutorials
+- Multiple paragraphs
+- Rewritten solutions
+
+Your response must contain only:
+
+Issue: ...
+Fix: ...
 """
 
     @staticmethod
@@ -34,25 +77,26 @@ Rules:
         error = stderr.strip()
 
         if not error:
-            return "SUCCESS"
+            return None
 
         if "ModuleNotFoundError" in error:
             return (
                 "The generated code uses an unavailable "
-                "or unsupported module. "
-                "Use only approved libraries."
+                "or unsupported module."
             )
 
         if "SyntaxError" in error:
             return (
-                "The generated code contains a syntax error. "
-                "Generate syntactically valid Python."
+                "The generated output contains text that "
+                "is not valid Python. Return only "
+                "executable Python code."
             )
 
         if "NameError" in error:
             return (
-                "The generated code references an undefined "
-                "variable or function."
+                "The generated code references undefined "
+                "objects. Ensure all classes, functions "
+                "and variables are defined."
             )
 
         if "TypeError" in error:
@@ -124,8 +168,20 @@ Rules:
             stderr
         )
 
+        review_context = ""
+
         if deterministic is not None:
-            return deterministic
+            review_context = deterministic
+
+        if (
+            not stderr.strip()
+            and not stdout.strip()
+        ):
+            review_context = (
+                "The generated code executed successfully "
+                "but produced no output. The solution "
+                "was not demonstrated."
+            )
 
         tokenizer, model = ModelLoader.load_model(
             REVIEW_MODEL_NAME
@@ -151,6 +207,21 @@ Sandbox Output:
 
 Sandbox Error:
 {stderr}
+
+Detected Issue:
+{review_context}
+
+Return feedback in this exact format:
+
+Issue: <one sentence>
+Fix: <one sentence>
+
+Rules:
+- Maximum 30 words.
+- Never generate code.
+- Never generate examples.
+- Never explain algorithms.
+- Never write more than two lines.
 """
             }
         ]
@@ -174,7 +245,7 @@ Sandbox Error:
         with torch.inference_mode():
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=MAX_NEW_TOKENS,
+                max_new_tokens=REVIEW_MAX_NEW_TOKENS,
                 temperature=TEMPERATURE,
                 do_sample=DO_SAMPLE,
                 pad_token_id=tokenizer.eos_token_id,

@@ -9,7 +9,9 @@ from pipeline.logger import PipelineLogger
 
 from config import MAX_RETRIES
 
+
 class Orchestrator:
+
     def __init__(self):
         self.code_agent = CodeAgent()
         self.review_agent = ReviewAgent()
@@ -24,20 +26,28 @@ class Orchestrator:
 
         feedback = ""
 
+        sandbox_result = {
+            "stdout": "",
+            "stderr": "",
+            "success": False
+        }
+
+        generated_code = ""
+
         for attempt in range(
             1,
             MAX_RETRIES + 1
         ):
-            
+
             generated_code = self.code_agent.generate(
                 user_prompt=user_prompt,
                 feedback=feedback
             )
-            
+
             generated_code = CodeSanitizer.sanitize(
                 generated_code
             )
-            
+
             PipelineLogger.log_code_agent(
                 f"Attempt: {attempt}\n\n"
                 f"User Prompt:\n"
@@ -47,7 +57,7 @@ class Orchestrator:
                 f"Generated Code:\n"
                 f"{generated_code}"
             )
-            
+
             valid, validation_result = (
                 ImportValidator.validate(
                     generated_code
@@ -55,23 +65,31 @@ class Orchestrator:
             )
 
             if not valid:
-                PipelineLogger.log_sandbox(
-                    validation_result
+
+                feedback = self.review_agent.review(
+                    user_prompt=user_prompt,
+                    generated_code=generated_code,
+                    stdout="",
+                    stderr=validation_result
                 )
-                return {
-                    "success": False,
-                    "code": generated_code,
+
+                PipelineLogger.log_review_agent(
+                    feedback
+                )
+
+                sandbox_result = {
                     "stdout": "",
                     "stderr": validation_result,
-                    "attempts": attempt
+                    "success": False
                 }
+
+                continue
 
             sandbox_result = Sandbox.execute(
                 generated_code
             )
-            
-            PipelineLogger.log_sandbox(
 
+            PipelineLogger.log_sandbox(
                 f"Attempt: {attempt}\n\n"
                 f"STDOUT:\n"
                 f"{sandbox_result['stdout']}\n\n"
@@ -80,6 +98,20 @@ class Orchestrator:
             )
 
             if sandbox_result["success"]:
+                if not sandbox_result["stdout"].strip():
+                    feedback = self.review_agent.review(
+                        user_prompt=user_prompt,
+                        generated_code=generated_code,
+                        stdout="",
+                        stderr=""
+                    )
+
+                    PipelineLogger.log_review_agent(
+                        feedback
+                    )
+
+                    continue
+
                 PipelineLogger.log_review_agent(
                     "SUCCESS"
                 )
@@ -96,8 +128,6 @@ class Orchestrator:
                     "attempts": attempt
                 }
 
-            ModelLoader.unload_model()
-
             feedback = self.review_agent.review(
                 user_prompt=user_prompt,
                 generated_code=generated_code,
@@ -108,21 +138,23 @@ class Orchestrator:
                     "stderr"
                 ]
             )
-            
+
             PipelineLogger.log_review_agent(
                 feedback
             )
 
         ModelLoader.unload_model()
-            
+
         return {
             "success": False,
             "code": generated_code,
-            "stdout": sandbox_result[
-                "stdout"
-            ],
-            "stderr": sandbox_result[
-                "stderr"
-            ],
+            "stdout": sandbox_result.get(
+                "stdout",
+                ""
+            ),
+            "stderr": sandbox_result.get(
+                "stderr",
+                feedback
+            ),
             "attempts": MAX_RETRIES
         }

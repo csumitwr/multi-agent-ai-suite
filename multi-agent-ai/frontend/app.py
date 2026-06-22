@@ -14,7 +14,7 @@ def load_css():
         )
 
 st.set_page_config(
-    page_title="Multi-Agent AI Python Code Generator",
+    page_title="BADRS AI Python Code Generator",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -22,7 +22,7 @@ st.set_page_config(
 load_css()
 
 st.markdown("""
-# Multi-Agent AI Python Code Generator
+# BADRS AI Python Code Generator
 """)
 
 st.markdown(

@@ -9,7 +9,7 @@ from models.model_loader import ModelLoader
 from config import MAX_RETRIES
 
 app = FastAPI(
-    title="Multi-Agent AI Python Code Generator"
+    title="BADRS AI Python Code Generator"
 )
 
 orchestrator = Orchestrator()
